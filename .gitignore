@@ -1,0 +1,27 @@
+values-dev*
+values-prod*
+
+
+.env*
+env
+.venv
+.idea
+__pycache__/
+*.pyc
+*.egg-info
+.DS_Store
+
+# keys
+*svc*.json
+config.yaml
+.ipynb_checkpoints
+.keys
+
+# ML
+embeddings
+indexes
+.pytest_cache
+wandb
+*third_party*
+build
+index_infos.json
