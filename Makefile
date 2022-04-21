@@ -60,11 +60,11 @@ k8s/undeploy: ## [Local development] undeploy from Kubernetes.
 	helm uninstall ${NAME} -n ${K8S_NAMESPACE}
 
 release:
-	echo "Releasing version ${VERSION}"; \
+	@echo "Releasing version ${VERSION}"; \
 	git add .; \
 	read -p "Commit content:" COMMIT; \
-	echo "Committing '${VERSION}: ${COMMIT}'"; \
-	git commit -m "${VERSION}: ${COMMIT}"; \
+	echo "Committing '${VERSION}: $$COMMIT'"; \
+	git commit -m "${VERSION}: $$COMMIT"; \
 	git push origin main; \
 	git tag v${VERSION}; \
 	git push origin v${VERSION}
