@@ -6,16 +6,16 @@ NAME ?= socialis
 ifeq ($(GCLOUD_PROJECT),langame-dev)
 $(info "Using develoment configuration")
 REGISTRY ?= 5306t2h8.gra7.container-registry.ovh.net/dev/${NAME}
-DISCORD_BOT_TOKEN := $(shell cat ../../.env.development | grep -w DISCORD_BOT_TOKEN | cut -d "=" -f 2)
-DISCORD_CLIENT_PUBLIC_KEY := $(shell cat ../../.env.development | grep -w DISCORD_CLIENT_PUBLIC_KEY | cut -d "=" -f 2)
+DISCORD_BOT_TOKEN := $(shell cat .env.development | grep -w DISCORD_BOT_TOKEN | cut -d "=" -f 2)
+DISCORD_CLIENT_PUBLIC_KEY := $(shell cat .env.development | grep -w DISCORD_CLIENT_PUBLIC_KEY | cut -d "=" -f 2)
 SVC_PATH := svc.dev.json
 HELM_VALUES := helm/values-dev.yaml
 K8S_NAMESPACE := ${NAME}-dev
 else
 $(info "Using production configuration")
 REGISTRY ?= 5306t2h8.gra7.container-registry.ovh.net/prod/${NAME}
-DISCORD_BOT_TOKEN:=$(shell cat ../../.env.production | grep -w DISCORD_BOT_TOKEN | cut -d "=" -f 2)
-DISCORD_CLIENT_PUBLIC_KEY:=$(shell cat ../../.env.production | grep -w DISCORD_CLIENT_PUBLIC_KEY | cut -d "=" -f 2)
+DISCORD_BOT_TOKEN:=$(shell cat .env.production | grep -w DISCORD_BOT_TOKEN | cut -d "=" -f 2)
+DISCORD_CLIENT_PUBLIC_KEY:=$(shell cat .env.production | grep -w DISCORD_CLIENT_PUBLIC_KEY | cut -d "=" -f 2)
 SVC_PATH := svc.prod.json
 HELM_VALUES := helm/values-prod.yaml
 K8S_NAMESPACE := ${NAME}-prod
@@ -60,14 +60,14 @@ k8s/undeploy: ## [Local development] undeploy from Kubernetes.
 	helm uninstall ${NAME} -n ${K8S_NAMESPACE}
 
 release:
-	echo "Releasing version $$VERSION"; \
+	echo "Releasing version ${VERSION}"; \
 	git add .; \
 	read -p "Commit content:" COMMIT; \
-	echo "Committing '$$VERSION: $$COMMIT'"; \
-	git commit -m "$$VERSION: $$COMMIT"; \
+	echo "Committing '${VERSION}: ${COMMIT}'"; \
+	git commit -m "${VERSION}: ${COMMIT}"; \
 	git push origin main; \
-	git tag v$$VERSION; \
-	git push origin v$$VERSION
+	git tag v${VERSION}; \
+	git push origin v${VERSION}
 	echo "Done, check https://github.com/langa-me/socialis/actions"
 
 
