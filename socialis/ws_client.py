@@ -48,20 +48,22 @@ class WebSocketClient:
         try:
             self.connection = future.result()
         except Exception as e:
-            self.logger.warning("Could not reconnect, retrying in 3 seconds, err: " + str(e))
+            self.logger.warning(
+                "Could not reconnect, retrying in 3 seconds, err: " + str(e)
+            )
             self.io_loop.call_later(3, self.connect_and_read)
 
     def on_close(self):
         self.on_close()
 
     def on_message(self, message):
-        # print(message)
         if message is None:
             self.logger.info("Disconnected, reconnecting...")
             self.connect_and_read()
             return
         message = json.loads(message)
         if "Welcome to the Langame Ava overworld." in message.get("text", ""):
+            self.logger.info("Initializing the conversation with parlai")
             self.connection.write_message(
                 json.dumps(
                     {"mid": 0, "sender": {"id": self.sender_id}, "text": "begin",}
@@ -69,11 +71,19 @@ class WebSocketClient:
             )
             return
         if "Welcome to Langame ava. Type [DONE]" in message.get("text", ""):
+            self.logger.info(
+                f"Conversation with parlai is ready, sending message {message}",
+            )
             if self.last_message:
                 self.connection.write_message(self.last_message)
             return
 
         if "[CONTEXT INSERTED]" in message.get("text", ""):
+            self.logger.info(f"Context inserted, {message}")
+            return
+
+        if "Returning to overworld" in message.get("text", ""):
+            self.logger.info(f"Returning to overworld, {message}")
             return
 
         # if empty message return
@@ -92,4 +102,3 @@ class WebSocketClient:
             }
         )
         self.connection.write_message(self.last_message)
-

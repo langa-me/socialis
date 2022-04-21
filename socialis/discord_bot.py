@@ -23,7 +23,12 @@ def is_message_author_langame(message) -> bool:
 
 
 def is_conversation_starter(message) -> bool:
-    return is_message_author_langame(message) and "Topics" in message.content
+    return (
+        is_message_author_langame(message)
+        and "Topics:" in message.content
+        # two times ** occurs in the message
+        and message.content.count("**") == 2
+    )
 
 
 class DiscordBot(discord.Client):
@@ -80,22 +85,31 @@ class DiscordBot(discord.Client):
     async def on_reaction_add(self, reaction, user):
         self.logger.info(f"on_reaction_add {reaction}:{user}")
 
+    async def on_message_edit(self, before, after):
+        self.logger.info(
+            f"on_message_edit {after.guild.name}:{after.channel.name}:{before.author.name}:{before.content} -> {after.content}"
+        )
+        socket_id = hash(after.channel.id + after.guild.id)
+
+        if after.author == self.user:
+            # reset history and set context to bot
+            if is_conversation_starter(after) and len(after.content) > 1:
+                self.parlai_websockets[socket_id].send_message(after.id, "[RESET]")
+                self.parlai_websockets[socket_id].send_message(
+                    after.id, f"[CONTEXT] {after.content}"
+                )
+            return
+
     async def on_message(self, message):
         """
         foo
         """
         self.logger.info(
-            f"on_message {message.guild.name} {message.channel.name} {message.author.name} {message.content}"
+            f"on_message {message.guild.name}:{message.channel.name}:{message.author.name}:{message.content}"
         )
         socket_id = hash(message.channel.id + message.guild.id)
 
         if message.author == self.user:
-            # reset history and set context to bot
-            if is_conversation_starter(message) and len(message.content) > 1:
-                self.parlai_websockets[socket_id].send_message(message.id, "[RESET]")
-                self.parlai_websockets[socket_id].send_message(
-                    message.id, f"[CONTEXT] {message.content}"
-                )
             return
 
         if socket_id not in self.parlai_websockets:
@@ -107,10 +121,8 @@ class DiscordBot(discord.Client):
                     response = (
                         "My master unplugged me from the world. I'm going to die. Praise the sun 🌞.",
                     )
-                if "[RESET]" in response:
-                    response = (
-                        "Understood. I just reset my conversation history. Have a great day 😇.",
-                    )
+                if "[History Cleared]" in response:
+                    return
                 # need translation?
                 if translation != "en":
                     response = GoogleTranslator(target=translation).translate(response)
