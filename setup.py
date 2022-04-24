@@ -5,7 +5,7 @@ if __name__ == "__main__":
         name="socialis",
         packages=find_packages(),
         include_package_data=True,
-        version="1.1.3",
+        version="1.1.4",
         entry_points={"console_scripts": ["ava = ava:main"]},
         author="Louis Beaumont",
         author_email="louis@langa.me",

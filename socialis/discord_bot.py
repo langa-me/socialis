@@ -100,7 +100,7 @@ class DiscordBot(discord.Client):
                 )
             return
 
-    async def on_message(self, message):
+    async def on_message(self, message: Message):
         """
         foo
         """
@@ -261,12 +261,15 @@ class DiscordBot(discord.Client):
 
         if (
             message.content
-            and is_message_author_langame(lg_m)
+            and
+            (
+                is_message_author_langame(lg_m)
+                or len([e for e in message.mentions if e == self.user]) > 0
+            )
             and len(message.content) > 1
         ):
 
-            # add grin tongue reaction to the message
-            await message.add_reaction("😛")
+
             # the user answered to a Langame conversation starter,
             # ask him a question related to his answer
             last_five_messages_before_lg_m = history[index_of_lg_m : index_of_lg_m + 2]
@@ -303,6 +306,8 @@ class DiscordBot(discord.Client):
                 self.parlai_websockets[socket_id].send_message(
                     message.id, message_content
                 )
+                # add grin tongue reaction to the message
+                await message.add_reaction("😛")
 
     async def my_background_task(self):
         await self.wait_until_ready()
