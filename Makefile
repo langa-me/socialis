@@ -21,6 +21,11 @@ HELM_VALUES := helm/values-prod.yaml
 K8S_NAMESPACE := ${NAME}-prod
 endif
 
+prod: ## Set the GCP project to prod
+	gcloud config set project langame-86ac4
+
+dev: ## Set the GCP project to dev
+	gcloud config set project langame-dev
 
 lint: ## [Local development] Run pylint to check code style.
 	@echo "Linting"
@@ -59,7 +64,7 @@ k8s/upgrade: ## [Local development] upgrade with new config.
 k8s/undeploy: ## [Local development] undeploy from Kubernetes.
 	helm uninstall ${NAME} -n ${K8S_NAMESPACE}
 
-release:
+release: ## [Local development] release a new version
 	@echo "Releasing version ${VERSION}"; \
 	git add .; \
 	read -p "Commit content:" COMMIT; \

@@ -1,6 +1,6 @@
 """ Stream data from the WebSocket and update the Beta posterior parameters online. """
 
-from typing import Any, Callable, Optional
+from typing import Callable, Optional
 from grpc import Future
 import tornado.ioloop
 import tornado.websocket
